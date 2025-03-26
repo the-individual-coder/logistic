@@ -46,7 +46,9 @@ const projects = require('./routes/projects')
 const projectTask = require('./routes/projectTasks')
 const suppliers = require('./routes/suppliers')
 const warehousing = require('./routes/warehousing')
-
+const maintenance_request = require('./routes/maintenance_request') 
+const procurement_request = require('./routes/procurement_request'); 
+const SpareParts = require('./routes/spare_parts');
 
 app.use(authRoute)
 app.use(assets)
@@ -56,8 +58,10 @@ app.use(projects)
 app.use(projectTask)
 app.use(suppliers)
 app.use(warehousing)
-
-app.get("/test", (req,res)=>{
+app.use(maintenance_request)
+app.use(procurement_request)
+app.use(SpareParts)
+app.get("/", (req,res)=>{
   res.json({message:"HEllo"})
 })
 app.get("/getUsers", async (req, res)=>{

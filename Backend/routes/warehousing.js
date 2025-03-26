@@ -11,8 +11,8 @@ warehousing.get("/getWarehouses", async (req, res) => {
 
 // Register a new warehousing record
 warehousing.post("/registerWarehouse", async (req, res) => {
-    const { assetID, location, quantity, warehouse_name } = req.body;
-    const query = `INSERT INTO warehousing (warehouse_name, asset_id, location, quantity) VALUES ('${warehouse_name}',${assetID}, '${location}', ${quantity})`;
+    const { asset_id, location, quantity, warehouse_name } = req.body;
+    const query = `INSERT INTO warehousing (warehouse_name, asset_id, location, quantity) VALUES ('${warehouse_name}',${asset_id}, '${location}', ${quantity})`;
     const result = await db(query);
     console.log(result);
     res.json(result);
@@ -20,10 +20,11 @@ warehousing.post("/registerWarehouse", async (req, res) => {
 
 // Update an existing warehousing record
 warehousing.post("/updateWarehouse", async (req, res) => {
-    const { warehouseID, location, quantity, warehouse_name} = req.body;
-    const query = `UPDATE warehousing SET warehouse_name = '${warehouse_name}', location = '${location}', quantity = ${quantity} WHERE id = ${warehouseID}`;
+    const { warehouseID, location, quantity, warehouse_name, asset_id} = req.body;
+    console.log(req.body)
+    const query = `UPDATE warehousing SET warehouse_name = '${warehouse_name}', location = '${location}', quantity = ${quantity}, asset_id= ${asset_id} WHERE id = ${warehouseID}`;
     const result = await db(query);
-    console.log(result);
+console.log(result);
     res.json(result);
 });
 

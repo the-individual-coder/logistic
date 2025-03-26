@@ -4,7 +4,7 @@ const mysql = require('mysql');
 const db = mysql.createPool({
     host: 'bvni3tbl8qdidniqw3f9-mysql.services.clever-cloud.com',
     user:'utopmk8f4wp4k7jl',
-    password:'wow70L5OVirz02yo7aQk',
+    password:'en1hR0RcUsRu4EN6U9kX',
     database: "bvni3tbl8qdidniqw3f9",
     port:3306
 })
