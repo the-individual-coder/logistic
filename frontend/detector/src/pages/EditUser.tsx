@@ -11,6 +11,8 @@ export const EditUsers = () => {
   const [deviceID, setDeviceID] = useState(0)
   const [deviceName, setDeviceName] = useState("")
   const [deviceStatus, setDeviceStatus] = useState('')
+  const [deviceRole, setDeviceRole] = useState('')
+  const role = [{label:"Super Admin", value:"1"},{label:"Admin", value:"2"}, {label:"Staff", value:"3"}]
   const navigate = useNavigate()
   useEffect(() => {
     getDevicesData()
@@ -31,6 +33,7 @@ export const EditUsers = () => {
       setDeviceID(selectedDevice.user_id)
       setDeviceName(name)
       setDeviceStatus(selectedDevice.email)
+      setDeviceRole(selectedDevice.role)
     } else {
       console.log(`Device with ID ${id} not found`);
     }
@@ -53,7 +56,8 @@ export const EditUsers = () => {
       const res = await axios.post(`${hostServer}/updateUser`, {
         username: deviceName,
         email:deviceStatus,
-        userID: deviceID
+        userID: deviceID,
+        role:deviceRole
       })
       console.log(res)
       alert("Updated Successfully!")
@@ -105,7 +109,7 @@ export const EditUsers = () => {
                     htmlFor="af-payment-billing-address"
                     className="inline-block text-sm font-medium dark:text-white"
                   >
-                    Update username
+                     Username
                   </label>
                   <div className="mt-2 space-y-3"></div>
                   <input required placeholder="Enter username" value={deviceName} onChange={(e) => { setDeviceName(e.target.value) }} className="py-2 px-3 pe-9 block w-full border-gray-200 shadow-sm text-sm rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" />
@@ -115,10 +119,32 @@ export const EditUsers = () => {
                     htmlFor="af-payment-billing-address"
                     className="inline-block text-sm font-medium dark:text-white"
                   >
-                    Update email
+                     Email
                   </label>
                   <div className="mt-2 space-y-3"></div>
                   <input required placeholder="Enter email" value={deviceStatus} onChange={(e) => { setDeviceStatus(e.target.value) }} className="py-2 px-3 pe-9 block w-full border-gray-200 shadow-sm text-sm rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" />
+
+                  <label
+                    htmlFor="af-payment-billing-address"
+                    className="inline-block text-sm font-medium dark:text-white"
+                  >
+                     Role
+                  </label>
+                  <div className="mt-2 space-y-3"></div>
+                  <select required value={deviceRole} onChange={(e) => { setDeviceRole((e.target.value)) }} className="py-2 px-3 pe-9 block w-full border-gray-200 shadow-sm text-sm rounded-lg focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600">
+                    <option selected disabled>Select Role</option>
+                    {role.length !== 0 && <>
+
+                      {role.map((e, i) => {
+                        return (
+                          <React.Fragment key={i}>
+                            <option value={e.value}>{e.label}</option>
+
+                          </React.Fragment>
+                        )
+                      })}
+                    </>}
+                  </select>
 
 
                 </div>
