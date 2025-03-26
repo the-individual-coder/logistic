@@ -530,7 +530,7 @@ export const ViewItems = () => {
                                                                                 <a className="block relative z-10" href="#">
                                                                                     <div className="px-6 py-2">
                                                                                         <p className="text-sm text-gray-500 dark:text-neutral-500">
-                                                                                            {data.role ==1 ?"Super Admin": data.role ==2? "Admin":"Staff" }
+                                                                                            {data.role == "1"?"Super Admin": data.role =="2"? "Admin":"Staff" }
                                                                                         </p>
 
                                                                                     </div>

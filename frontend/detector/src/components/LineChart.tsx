@@ -20,7 +20,7 @@ import { Warehouse } from "../pages/Warehousing";
 ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 const LineChart: React.FC = () => {
-      const { user, setIsLoading } = useOutletContext<OutletContextType>()
+      const { setIsLoading } = useOutletContext<OutletContextType>()
       const hostServer = import.meta.env.VITE_SERVER_HOST
       const [datas, setDatas] = useState<Warehouse[]>([])
   // Define data type
@@ -73,7 +73,5 @@ useEffect(()=>{
 };
 
 export default LineChart;
-function setIsLoading(arg0: boolean) {
-  throw new Error("Function not implemented.");
-}
+
 

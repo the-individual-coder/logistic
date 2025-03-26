@@ -1,6 +1,5 @@
 
 import { useOutletContext } from "react-router-dom";
-import { Line } from "react-chartjs-2";
 import { OutletContextType } from "../layouts/MainLayout";
 import LineChart from "../components/LineChart";
 export const Homepage = () => {

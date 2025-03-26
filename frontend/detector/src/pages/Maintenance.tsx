@@ -4,7 +4,7 @@ import React from "react"
 import { useOutletContext } from "react-router-dom"
 import { OutletContextType } from "../layouts/MainLayout"
 import {maintenanceIssues, maintenanceStatuses} from '../constants/variables.ts'
-import AssetI from "./Asset"
+
 interface IMaintenance {
     id: number,
     name: string,
@@ -23,13 +23,7 @@ const priorityLevels = [
   ];
 
 export const Maintenance = () => {
-    const formatDateForInput = (date: any) => {
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0'); // Add leading zero
-        const day = String(d.getDate()).padStart(2, '0');         // Add leading zero
-        return `${year}-${month}-${day}`;
-    };
+
     function formatDate(isoDate:string) {
         return isoDate.slice(0, 10); // Extracts the first 10 characters (YYYY-MM-DD format)
       }
