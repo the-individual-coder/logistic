@@ -11,12 +11,14 @@ import { MainLayout } from './layouts/MainLayout';
 import { RegisterPage } from './pages/Register';
 import { EditUsers } from './pages/EditUser';
 import { EditDevices } from './pages/EditDevices';
+import { Maintenance } from './pages/Maintenance';
 import { Asset } from './pages/Asset';
 import Procurement from './pages/Procurement';
 import { Project } from './pages/Project';
-import ProjectTasksPage from './pages/ProjectTask';
+import {ProjectTasksPage} from './pages/ProjectTask';
 import Supplier from './pages/Supplier';
 import { WarehousingPage } from './pages/Warehousing';
+import { SpareParts } from './pages/SpareParts';
 declare global {
   interface Window {
     HSStaticMethods: IStaticMethods;
@@ -57,10 +59,13 @@ function App() {
   }, []); 
   return (
     <>
+
     <Routes>
     <Route element={<LoginPage/>} path='/login' />
     <Route element={<RegisterPage/>} path='/register' />
       <Route element={<MainLayout/>}>
+
+      <Route element={<Maintenance/>} path='/maintenance_requests'/>
       <Route element={<Homepage/>} path='/' />
       {/* Items */}
       <Route element={<ViewItems/>} path='/users/view' />
@@ -70,6 +75,7 @@ function App() {
       <Route element={<EditDevices/>} path='/devices/edit' />
       <Route element={<Asset/>} path='/assets' />
       <Route element={<Procurement/>} path='/procurement' />
+      <Route element={<SpareParts/>} path='/spare_parts' />
       <Route element={<Project/>} path='/project' />
       <Route element={<ProjectTasksPage/>} path='/projecttask' />
       <Route element={<Supplier/>} path='/supplier' />

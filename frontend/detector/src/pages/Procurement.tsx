@@ -19,14 +19,14 @@ interface ProcurementI {
 
 export const Procurement = () => {
     const status = [
-        "pending",
-        "completed",
-        "cancelled",
+        "Pending",
+        "Completed",
+        "Cancelled",
     ]
     const payment_method = [
-        "credit",
-        "cash",
-        "bank_transfer",
+        "Credit",
+        "Cash",
+        "Bank Transfer",
     ]
     const formatDateForInput = (date: any) => {
         const d = new Date(date);
@@ -36,7 +36,7 @@ export const Procurement = () => {
         return `${year}-${month}-${day}`;
     };
     const hostServer = import.meta.env.VITE_SERVER_HOST
-    const { setIsLoading } = useOutletContext<OutletContextType>()
+    const { setIsLoading, user } = useOutletContext<OutletContextType>()
     const [assetsF, setAssetsF] = useState<AssetI[]>([])
     const [supplier, setSupplier] = useState<SupplierI[]>([])
     const [assets, setAssets] = useState<ProcurementI[]>([]);
@@ -205,10 +205,10 @@ export const Procurement = () => {
                                         <div className="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
                                             <div>
                                                 <h2 className="text-xl font-semibold text-gray-800 dark:text-neutral-200">
-                                                    Project Tasks Data
+                                                    Procurement Requests Data
                                                 </h2>
                                                 <p className="text-sm text-gray-600 dark:text-neutral-400">
-                                                    Create Project Tasks, edit and delete.
+                                                    Create Procurements Requests, edit and delete.
                                                 </p>
                                             </div>
                                             <div>
@@ -223,7 +223,7 @@ export const Procurement = () => {
                                                             aria-controls="hs-focus-management-modal"
                                                             data-hs-overlay="#hs-focus-management-modal"
                                                         >
-                                                            Add Supplier
+                                                            Add Request
                                                         </button>
                                                         <div
                                                             id="hs-focus-management-modal"
@@ -290,7 +290,7 @@ export const Procurement = () => {
                                                                                 }}
                                                                                 className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                                             >
-                                                                                <option value="" disabled>Select project</option>
+                                                                                <option value="" disabled>Select asset</option>
                                                                                 {assetsF.map((e) => (
                                                                                     <option key={e.id} value={e.id}>
                                                                                         {e.name}
@@ -319,7 +319,7 @@ export const Procurement = () => {
                                                                                 }}
                                                                                 className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                                             >
-                                                                                <option value="" disabled>Select project</option>
+                                                                                <option value="" disabled>Select supplier</option>
                                                                                 {supplier.map((e) => (
                                                                                     <option key={e.id} value={e.id}>
                                                                                         {e.name}
@@ -424,7 +424,7 @@ export const Procurement = () => {
                                                                                 }}
                                                                                 className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                                             >
-                                                                                <option value="" disabled>Select project</option>
+                                                                                <option value="" disabled>Select payment method</option>
                                                                                 {payment_method.map((e) => (
                                                                                     <option key={e} value={e}>
                                                                                         {e}
@@ -566,7 +566,7 @@ export const Procurement = () => {
 
                                                             </a>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-3 text-end" />
+                                                        {user.role !=="3" && <th scope="col" className="px-6 py-3 text-end" />}
                                                         {
                                                             data.length == 0 ?
                                                                 <>
@@ -690,7 +690,9 @@ export const Procurement = () => {
                                                                                     </div>
                                                                                 </a>
                                                                             </td>
-                                                                            <td className="size-px whitespace-nowrap">
+                                                                            {user.role !== "3" &&
+                                                                            <>
+                                                                                                                                                        <td className="size-px whitespace-nowrap">
                                                                                 <div className="px-6 py-1.5">
                                                                                     <a
                                                                                         onClick={() => { removeProjectTask(data.id) }}
@@ -729,7 +731,7 @@ export const Procurement = () => {
                                                                                                             id="hs-focus-management-modal-label"
                                                                                                             className="font-bold text-gray-800 dark:text-white"
                                                                                                         >
-                                                                                                            Warehouse Data
+                                                                                                            Procurement Update
                                                                                                         </h3>
                                                                                                         <button
                                                                                                             onClick={() => { toggleDialog(data) }}
@@ -778,7 +780,7 @@ export const Procurement = () => {
                                                                                                             }}
                                                                                                             className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                                                                         >
-                                                                                                            <option value="" disabled>Select project</option>
+                                                                                                            <option value="" disabled>Select asset</option>
                                                                                                             {assetsF.map((e) => (
                                                                                                                 <option key={e.id} value={e.id}>
                                                                                                                     {e.name}
@@ -807,7 +809,7 @@ export const Procurement = () => {
                                                                                                             }}
                                                                                                             className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                                                                         >
-                                                                                                            <option value="" disabled>Select project</option>
+                                                                                                            <option value="" disabled>Select supplier</option>
                                                                                                             {supplier.map((e) => (
                                                                                                                 <option key={e.id} value={e.id}>
                                                                                                                     {e.name}
@@ -818,7 +820,7 @@ export const Procurement = () => {
                                                                                                             htmlFor="input-label"
                                                                                                             className="mt-5 block text-sm font-medium mb-2 dark:text-white"
                                                                                                         >
-                                                                                                            Procurement Date
+                                                                                                            Request Date
                                                                                                         </label>
                                                                                                         <input
                                                                                                             value={formatDateForInput(updateDataForm.procurementDate)}
@@ -912,7 +914,7 @@ export const Procurement = () => {
                                                                                                             }}
                                                                                                             className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                                                                         >
-                                                                                                            <option value="" disabled>Select project</option>
+                                                                                                            <option value="" disabled>Select payment method</option>
                                                                                                             {payment_method.map((e) => (
                                                                                                                 <option key={e} value={e}>
                                                                                                                     {e}
@@ -974,6 +976,8 @@ export const Procurement = () => {
                                                                                 </div>
 
                                                                             </td>
+                                                                            </>}
+
                                                                         </tr>
 
                                                                     </tbody>

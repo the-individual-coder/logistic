@@ -17,7 +17,7 @@ export default interface ProjectI {
 
 export const Project = () => {
     const hostServer = import.meta.env.VITE_SERVER_HOST
-    const { setIsLoading } = useOutletContext<OutletContextType>()
+    const { setIsLoading, user } = useOutletContext<OutletContextType>()
     const [assets, setAssets] = useState<ProjectI[]>([]);
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 5;
@@ -413,7 +413,7 @@ export const Project = () => {
 
                                                             </a>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-3 text-end" />
+                                                        {user.role !=="3" && <th scope="col" className="px-6 py-3 text-end" />}
                                                         {
                                                             data.length == 0 ?
                                                                 <>
@@ -517,7 +517,7 @@ export const Project = () => {
                                                                                     </div>
                                                                                 </a>
                                                                             </td>
-
+                                                                        {user.role !== "3" && <>
                                                                             <td className="size-px whitespace-nowrap">
                                                                                 <div className="px-6 py-1.5">
                                                                                     <a
@@ -557,7 +557,7 @@ export const Project = () => {
                                                                                 id="hs-focus-management-modal-label"
                                                                                 className="font-bold text-gray-800 dark:text-white"
                                                                             >
-                                                                                Asset Registration
+                                                                                Project Update
                                                                             </h3>
                                                                             <button
                                                                             onClick={()=>{toggleDialog(data)}}
@@ -723,6 +723,8 @@ export const Project = () => {
                                                         </div>
 
                                                                             </td>
+                                                                        </>}
+
                                                                         </tr>
 
                                                                     </tbody>

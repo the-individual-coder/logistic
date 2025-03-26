@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { FadeLoader } from 'react-spinners';
+import SparePartsAlert from '../components/spare_parts_alert';
 export interface OrderData {
   "Date Ordered": string;
   Month: number;
@@ -53,7 +54,7 @@ export interface OutletContextType {
 export const MainLayout = () => {
   const navigate = useNavigate()
   const hostServer = import.meta.env.VITE_SERVER_HOST
-  const [user, setUser] = useState()
+  const [user, setUser] = useState<users>()
   const [isLoading, setIsLoading] = useState(false)
   useEffect(()=>{
     authCheck()
@@ -110,6 +111,18 @@ export const MainLayout = () => {
       </>
       }
         {/* ========== MAIN CONTENT ========== */}
+              <SparePartsAlert 
+              route='spare_parts'
+                warningThreshold={14}  // Show warning when 14 days left
+                criticalThreshold={3} // Show critical when 3 days left
+                checkInterval={86400000} // Check daily (24 hours)
+              />
+              <SparePartsAlert 
+              route='asset'
+                warningThreshold={14}  // Show warning when 14 days left
+                criticalThreshold={3} // Show critical when 3 days left
+                checkInterval={86400000} // Check daily (24 hours)
+              />
         {/* Breadcrumb */}
         <div className="sticky top-0 inset-x-0 z-20 bg-white border-y px-4 sm:px-6 lg:px-8 lg:hidden dark:bg-neutral-800 dark:border-neutral-700">
           <div className="flex items-center py-2">
@@ -174,7 +187,7 @@ export const MainLayout = () => {
               >
                 Dashboard
               </li>
-                </>: breadCrumb == "Procurements" ? 
+                </>: breadCrumb == "Procurement Requests" ? 
                 <>
                              <li>
                 <svg
@@ -197,7 +210,7 @@ export const MainLayout = () => {
                 className="text-sm font-semibold text-gray-800 truncate dark:text-neutral-400"
                 aria-current="page"
               >
-                Procurements
+                Procurement Requests
               </li>
                 </>
                 :breadCrumb == "Project Tasks" ?
@@ -225,7 +238,7 @@ export const MainLayout = () => {
               >
                 Project Tasks
               </li>
-                </> :breadCrumb == "Warehouses" ? 
+                </> :breadCrumb == "Warehouse" ? 
                 <>
                                                     <li>
                 <svg
@@ -248,7 +261,7 @@ export const MainLayout = () => {
                 className="text-sm font-semibold text-gray-800 truncate dark:text-neutral-400"
                 aria-current="page"
               >
-                Warehouses
+                Warehouse
               </li>
                 </>:breadCrumb == "Suppliers" ?
                 <>
@@ -302,6 +315,7 @@ export const MainLayout = () => {
               </li>
                 </>:breadCrumb == "Assets" ? 
                 <>
+                
                                                                                            <li>
                 <svg
                   className="shrink-0 mx-3 overflow-visible size-2.5 text-gray-400 dark:text-neutral-500"
@@ -325,7 +339,61 @@ export const MainLayout = () => {
               >
                 Assets
               </li>
-                </>: 
+                </>: breadCrumb == "Maintenance Requests"?
+                          <>
+                
+                          <li>
+<svg
+className="shrink-0 mx-3 overflow-visible size-2.5 text-gray-400 dark:text-neutral-500"
+width={16}
+height={16}
+viewBox="0 0 16 16"
+fill="none"
+xmlns="http://www.w3.org/2000/svg"
+>
+<path
+d="M5 1L10.6869 7.16086C10.8637 7.35239 10.8637 7.64761 10.6869 7.83914L5 14"
+stroke="currentColor"
+strokeWidth={2}
+strokeLinecap="round"
+/>
+</svg>
+</li>
+<li
+className="text-sm font-semibold text-gray-800 truncate dark:text-neutral-400"
+aria-current="page"
+>
+Maintenance Requests
+</li>
+</>
+                : breadCrumb == "Spare Parts"?
+                <>
+                
+                <li>
+<svg
+className="shrink-0 mx-3 overflow-visible size-2.5 text-gray-400 dark:text-neutral-500"
+width={16}
+height={16}
+viewBox="0 0 16 16"
+fill="none"
+xmlns="http://www.w3.org/2000/svg"
+>
+<path
+d="M5 1L10.6869 7.16086C10.8637 7.35239 10.8637 7.64761 10.6869 7.83914L5 14"
+stroke="currentColor"
+strokeWidth={2}
+strokeLinecap="round"
+/>
+</svg>
+</li>
+<li
+className="text-sm font-semibold text-gray-800 truncate dark:text-neutral-400"
+aria-current="page"
+>
+Spare Parts
+</li>
+</>
+                :
                 <>
                               <li
                 className="text-sm font-semibold text-gray-800 truncate dark:text-neutral-400"
@@ -401,7 +469,7 @@ export const MainLayout = () => {
                 data-hs-accordion-always-open=""
               >
                 <ul className="flex flex-col space-y-1">
-                  <li>
+                 <li>
                     <Link
                       className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white"
                       to="/"
@@ -423,46 +491,6 @@ export const MainLayout = () => {
                         <polyline points="9 22 9 12 15 12 15 22" />
                       </svg>
                       Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white"
-                      to="/procurement"
-                      onClick={()=>{setBreadCrumb("Procurements")}}
-                    >
-                      
-                      <svg
-                           className="shrink-0 size-4"
-                           width={24}
-                           height={24}
-  fill="#1f2937"
-  version="1.2"
-  baseProfile="tiny"
-  id="Layer_1"
-  xmlns="http://www.w3.org/2000/svg"
-  xmlnsXlink="http://www.w3.org/1999/xlink"
-  viewBox="0 0 256 188"
-  xmlSpace="preserve"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth={0} />
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
-  <g id="SVGRepo_iconCarrier">
-    {" "}
-    <g>
-      {" "}
-      <g>
-        {" "}
-        <g>
-          {" "}
-          <path d="M63,133c-13,0-23.5,10.5-23.5,23.5s10.5,23.5,23.5,23.5c13,0,23.5-10.5,23.5-23.5S76,133,63,133z M63,165.4 c-4.9,0-9-4.1-9-9c0-4.9,4.1-9,9-9c4.9,0,9,4.1,9,9C72,161.4,68,165.4,63,165.4z M210.8,132c-13,0-23.5,10.5-23.5,23.5 s10.5,23.5,23.5,23.5c13,0,23.5-10.5,23.5-23.5S223.8,132,210.8,132z M210.8,164.4c-4.9,0-9-4.1-9-9c0-4.9,4.1-9,9-9 c4.9,0,9,4.1,9,9C219.8,160.4,215.8,164.4,210.8,164.4z M-0.5,143.1c0,4.6,3.7,8.2,8.2,8.2h22.6c0.9,0,1.7-0.7,1.9-1.5 c2.6-14.7,15.4-24.9,30.8-24.9s28.3,10.2,30.8,24.9c0.2,0.9,0.9,1.5,1.9,1.5H99h30.9V115H-0.5V143.1z M253.6,134.5h-5v-22 c0-7.5-6.1-13.6-13.7-13.6h-24.3c-0.5,0-1-0.3-1.4-0.6l-38-37c-1.7-1.7-4.1-2.7-6.6-2.8h-27.5v92.8h40.9c0.9,0,1.7-0.7,1.9-1.5 c2.6-14.7,15.4-25.9,30.8-25.9s28.3,11.2,30.8,25.9c0.2,0.9,0.9,1.5,1.9,1.5h3.2c4.9,0,8.7-3.9,8.7-8.7v-6.3 C255.5,135.4,254.6,134.5,253.6,134.5z M191.1,99h-41.4c-1,0-1.9-0.9-1.9-1.9V70.7c0-1,0.9-1.9,1.9-1.9h13.9c0.5,0,1,0.3,1.5,0.6 l27.5,26.3C193.5,97,192.7,99,191.1,99z" />{" "}
-        </g>{" "}
-      </g>{" "}
-    </g>{" "}
-    <path d="M57.8,101.5H17.1V60.8h15.7v13h9.3v-13h15.7V101.5z M110.9,101.5H70.3V60.8H86v13h9.3v-13h15.7V101.5z M84.7,48.3H44V7.6 h15.7v13H69v-13h15.7V48.3z" />{" "}
-  </g>
-</svg>
-                      Procurements
                     </Link>
                   </li>
                   <li>
@@ -507,11 +535,12 @@ export const MainLayout = () => {
                       Project Tasks
                     </Link>
                   </li>
+
                   <li>
                     <Link
                       className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white"
                       to="/warehouse"
-                      onClick={()=>{setBreadCrumb("Warehouses")}}
+                      onClick={()=>{setBreadCrumb("Warehouse")}}
                     >
 <svg
 
@@ -582,7 +611,7 @@ width={24}
   </g>
 </svg>
 
-                      Warehouses
+                      Warehouse
                     </Link>
                   </li>
                   <li>
@@ -669,194 +698,212 @@ width={24}
                       Assets
                     </Link>
                   </li>
-
-  
-                  <li className="hs-accordion" id="account-accordion">
-                    <button
-                      type="button"
-                      className="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-neutral-200"
-                      aria-expanded="true"
-                      aria-controls="account-accordion-child"
+                  <li>
+                    <Link
+                      className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white"
+                      to="/spare_parts"
+                      onClick={()=>{setBreadCrumb("Spare Parts")}}
                     >
 
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 mt-0.5 size-4" width={24} height={24}>
+<svg viewBox="0 0 24 24" width={16} height={16} fill="none" xmlns="http://www.w3.org/2000/svg">
   <g id="SVGRepo_bgCarrier" strokeWidth={0} />
   <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
   <g id="SVGRepo_iconCarrier">
     {" "}
     <path
-      d="M10.1992 12C12.9606 12 15.1992 9.76142 15.1992 7C15.1992 4.23858 12.9606 2 10.1992 2C7.43779 2 5.19922 4.23858 5.19922 7C5.19922 9.76142 7.43779 12 10.1992 12Z"
-      stroke="#1f2937"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />{" "}
-    <path
-      d="M1 22C1.57038 20.0332 2.74795 18.2971 4.36438 17.0399C5.98081 15.7827 7.95335 15.0687 10 15C14.12 15 17.63 17.91 19 22"
-      stroke="#1f2937"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />{" "}
-    <path
-      d="M17.8205 4.44006C18.5822 4.83059 19.1986 5.45518 19.579 6.22205C19.9594 6.98891 20.0838 7.85753 19.9338 8.70032C19.7838 9.5431 19.3674 10.3155 18.7458 10.9041C18.1243 11.4926 17.3302 11.8662 16.4805 11.97"
-      stroke="#1f2937"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />{" "}
-    <path
-      d="M17.3203 14.5701C18.6543 14.91 19.8779 15.5883 20.8729 16.5396C21.868 17.4908 22.6007 18.6827 23.0003 20"
-      stroke="#1f2937"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H8C8.55228 23 9 22.5523 9 22C9 21.4477 8.55228 21 8 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V7C19 7.55228 19.4477 8 20 8C20.5523 8 21 7.55228 21 7V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM13.5067 11.3155C13.6011 10.0209 14.6813 9 16 9H17C18.3186 9 19.3988 10.0209 19.4933 11.3155C20.6616 10.75 22.0859 11.175 22.7452 12.317L23.2452 13.183C23.9045 14.325 23.5605 15.7709 22.4866 16.5C23.5605 17.2291 23.9045 18.675 23.2452 19.817L22.7452 20.683C22.0859 21.825 20.6616 22.25 19.4933 21.6845C19.3988 22.9791 18.3186 24 17 24H16C14.6813 24 13.6011 22.9791 13.5067 21.6845C12.3384 22.25 10.9141 21.825 10.2548 20.683L9.7548 19.817C9.09548 18.675 9.43952 17.2291 10.5134 16.5C9.43952 15.7709 9.09548 14.325 9.7548 13.183L10.2548 12.317C10.9141 11.175 12.3384 10.75 13.5067 11.3155ZM16 11C15.7238 11 15.5 11.2239 15.5 11.5V12.4678C15.5 12.8474 15.285 13.1943 14.945 13.3633C14.8128 13.429 14.6852 13.5029 14.5629 13.5844C14.2464 13.7952 13.8378 13.8083 13.5085 13.6181L12.6699 13.134C12.4307 12.9959 12.1249 13.0778 11.9868 13.317L11.4868 14.183C11.3488 14.4222 11.4307 14.728 11.6699 14.866L12.5088 15.3504C12.8375 15.5402 13.0304 15.8997 13.0069 16.2785C13.0023 16.3516 13 16.4255 13 16.5C13 16.5745 13.0023 16.6484 13.0069 16.7215C13.0304 17.1003 12.8375 17.4598 12.5088 17.6496L11.6699 18.134C11.4307 18.272 11.3488 18.5778 11.4868 18.817L11.9868 19.683C12.1249 19.9222 12.4307 20.0041 12.6699 19.866L13.5085 19.3819C13.8378 19.1917 14.2464 19.2048 14.5629 19.4156C14.6852 19.4971 14.8128 19.571 14.945 19.6367C15.285 19.8057 15.5 20.1526 15.5 20.5322V21.5C15.5 21.7761 15.7238 22 16 22H17C17.2761 22 17.5 21.7761 17.5 21.5V20.5323C17.5 20.1526 17.715 19.8057 18.055 19.6367C18.1872 19.571 18.3148 19.4971 18.4372 19.4156C18.7536 19.2048 19.1622 19.1917 19.4915 19.3819L20.3301 19.866C20.5693 20.0041 20.8751 19.9222 21.0131 19.683L21.5131 18.817C21.6512 18.5778 21.5693 18.272 21.3301 18.134L20.4912 17.6496C20.1625 17.4599 19.9696 17.1004 19.9931 16.7215C19.9977 16.6484 20 16.5745 20 16.5C20 16.4255 19.9977 16.3516 19.9931 16.2785C19.9696 15.8996 20.1625 15.5401 20.4912 15.3504L21.3301 14.866C21.5693 14.728 21.6512 14.4222 21.5131 14.183L21.0131 13.317C20.8751 13.0778 20.5693 12.9959 20.3301 13.134L19.4915 13.6181C19.1622 13.8083 18.7536 13.7952 18.4372 13.5844C18.3148 13.5029 18.1872 13.429 18.055 13.3633C17.715 13.1943 17.5 12.8474 17.5 12.4677V11.5C17.5 11.2239 17.2761 11 17 11H16ZM18.5 16.5C18.5 17.6046 17.6046 18.5 16.5 18.5C15.3954 18.5 14.5 17.6046 14.5 16.5C14.5 15.3954 15.3954 14.5 16.5 14.5C17.6046 14.5 18.5 15.3954 18.5 16.5Z"
+      fill="#1f2937"
     />{" "}
   </g>
 </svg>
 
 
-                      Users
-                      <svg
-                        className="hs-accordion-active:block ms-auto hidden size-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={24}
-                        height={24}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m18 15-6-6-6 6" />
-                      </svg>
-                      <svg
-                        className="hs-accordion-active:hidden ms-auto block size-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={24}
-                        height={24}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m6 9 6 6 6-6" />
-                      </svg>
-                    </button>
-                    <div
-                      id="account-accordion-child"
-                      className="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
-                      role="region"
-                      aria-labelledby="account-accordion"
-                    >
-                      <ul className="ps-8 pt-1 space-y-1">
-                        <li>
-                          <Link
-                            className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:text-neutral-200"
-                            to="users/view"
-                            onClick={()=>{setBreadCrumb("Items")}}
-                          >
-                            {/* <svg
-                              fill="#1f2937"
-                              height="15"
-                              width="15"
-                              version="1.1"
-                              id="Layer_1"
-                              xmlns="http://www.w3.org/2000/svg"
-                              xmlnsXlink="http://www.w3.org/1999/xlink"
-                              viewBox="0 0 512 512"
-                              xmlSpace="preserve"
-                              stroke="#1f2937"
-                            >
-                              <g id="SVGRepo_bgCarrier" strokeWidth={0} />
-                              <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
-                              <g id="SVGRepo_iconCarrier">
-                                {" "}
-                                <g>
-                                  {" "}
-                                  <g>
-                                    {" "}
-                                    <path d="M226.133,469.333H55.467V409.6c0-4.71-3.823-8.533-8.533-8.533c-4.71,0-8.533,3.823-8.533,8.533v68.267 c0,4.71,3.823,8.533,8.533,8.533h179.2c4.71,0,8.533-3.823,8.533-8.533S230.844,469.333,226.133,469.333z" />{" "}
-                                  </g>{" "}
-                                </g>{" "}
-                                <g>
-                                  {" "}
-                                  <g>
-                                    {" "}
-                                    <path d="M46.933,366.933c-4.71,0-8.533,3.823-8.533,8.533S42.223,384,46.933,384h0.085c4.71,0,8.491-3.823,8.491-8.533 S51.644,366.933,46.933,366.933z" />{" "}
-                                  </g>{" "}
-                                </g>{" "}
-                                <g>
-                                  {" "}
-                                  <g>
-                                    {" "}
-                                    <path d="M394.3,139.034L257.766,2.5c-1.596-1.604-3.772-2.5-6.033-2.5h-204.8C42.223,0,38.4,3.823,38.4,8.533v332.8 c0,4.71,3.823,8.533,8.533,8.533c4.71,0,8.533-3.823,8.533-8.533V17.067H243.2v128c0,4.71,3.823,8.533,8.533,8.533h128v76.8 c0,4.71,3.823,8.533,8.533,8.533s8.533-3.823,8.533-8.533v-85.333C396.8,142.805,395.904,140.629,394.3,139.034z M260.267,136.533 V29.133l107.401,107.401H260.267z" />{" "}
-                                  </g>{" "}
-                                </g>{" "}
-                                <g>
-                                  {" "}
-                                  <g>
-                                    {" "}
-                                    <path d="M345.6,256c-70.579,0-128,57.421-128,128s57.421,128,128,128s128-57.421,128-128S416.179,256,345.6,256z M345.6,494.933 c-61.167,0-110.933-49.766-110.933-110.933S284.433,273.067,345.6,273.067S456.533,322.833,456.533,384 S406.767,494.933,345.6,494.933z" />{" "}
-                                  </g>{" "}
-                                </g>{" "}
-                                <g>
-                                  {" "}
-                                  <g>
-                                    {" "}
-                                    <path d="M429.286,378.957c-22.272-31.138-51.994-48.29-83.686-48.29s-61.406,17.143-83.678,48.29 c-2.005,2.807-2.125,6.682-0.324,9.626c21.709,35.319,51.132,54.904,82.859,55.151c0.205,0,0.41,0,0.614,0 c31.872,0,61.841-19.524,84.454-55.04C431.411,385.741,431.317,381.798,429.286,378.957z M345.6,349.867 c9.395,0,17.032,7.637,17.032,17.033c0,9.395-7.637,17.033-17.032,17.033c-9.395,0-17.033-7.646-17.033-17.033 S336.205,349.867,345.6,349.867z M410.01,387.081c-18.526,25.626-41.327,39.586-64.947,39.586c-0.162,0-0.316,0-0.469,0 c-23.424-0.188-45.747-14.148-63.556-39.543c-1.109-1.587-1.033-3.84,0.205-5.333c8.678-10.513,18.398-18.662,28.732-24.38 c1.271-0.7,2.825,0.495,2.483,1.911c-1.988,8.09-1.237,17.212,6.016,27.341c3.866,5.402,9.054,9.668,15.275,12.006 c23.748,8.917,45.986-9.088,45.986-31.735c0-3.115-0.768-5.291-1.348-7.893c-0.307-1.374,1.289-2.483,2.526-1.809 c10.411,5.7,20.19,13.858,28.937,24.422C411.102,383.181,411.17,385.476,410.01,387.081z" />{" "}
-                                  </g>{" "}
-                                </g>{" "}
-                              </g>
-                            </svg> */}
-                            List of accounts 
-                          </Link>
-                          <Link    className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:text-neutral-200"
-                          
-                            onClick={()=>{setBreadCrumb("Items")}}to="/users/edit">
-                          Edit accounts
-                          </Link>
-                        </li>
-                        {/* <li>
-
-
-                          <Link
-                            className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:text-neutral-200"
-                            to="items/create"
-                          >
-                            <svg
-                              height={15}
-                              width={15}
-                              viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <g id="SVGRepo_bgCarrier" strokeWidth={0} />
-                              <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
-                              <g id="SVGRepo_iconCarrier">
-                                {" "}
-                                <path
-                                  d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H11M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V11.8125"
-                                  stroke="#1f2937"
-                                  strokeWidth={2}
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />{" "}
-                                <path
-                                  d="M17 15V18M17 21V18M17 18H14M17 18H20"
-                                  stroke="#1f2937"
-                                  strokeWidth={2}
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />{" "}
-                              </g>
-                            </svg>
-                            Create
-                          </Link>
-                        </li> */}
-                      </ul>
-                    </div>
+                      Spare Parts
+                    </Link>
                   </li>
+                  <li>
+                    <Link
+                      className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white"
+                      to="/maintenance_requests"
+                      onClick={()=>{setBreadCrumb("Maintenance Requests")}}
+                    >
+
+<svg
+width={16}
+height={16}
+  viewBox="0 0 512 512"
+  version="1.1"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlnsXlink="http://www.w3.org/1999/xlink"
+  fill="#1f2937"
+>
+  <g id="SVGRepo_bgCarrier" strokeWidth={0} />
+  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+  <g id="SVGRepo_iconCarrier">
+    {" "}
+    <title>maintenance-documents</title>{" "}
+    <g id="Page-1" stroke="none" strokeWidth={1} fill="none" fillRule="evenodd">
+      {" "}
+      <g id="add" fill="#1f2937" transform="translate(42.666667, 42.666667)">
+        {" "}
+        <path
+          d="M320,64 L405.333333,149.333333 L405.333333,426.666667 L64,426.666667 L64,64 L320,64 Z M302.326888,106.666667 L106.666667,106.666667 L106.666667,384 L362.666667,384 L362.666667,167.006445 L302.326888,106.666667 Z M256,7.10542736e-15 L298.666667,42.6666667 L42.6666667,42.6666667 L42.6666667,362.666667 L7.10542736e-15,362.666667 L7.10542736e-15,7.10542736e-15 L256,7.10542736e-15 Z M244.302904,167.174593 C260.439702,188.157298 265.883899,213.970305 260.713161,232.815619 C260.06747,235.91652 282.811168,260.09809 328.944255,305.360329 C344.0292,320.445274 344.0292,335.530218 328.944255,350.615163 C314.74666,364.812758 300.549065,365.64791 286.35147,353.120621 L211.482391,282.046388 C192.635434,287.217603 166.823081,281.773415 145.841366,265.636132 C130.452444,245.401095 125.144195,218.951922 129.431109,199.995106 L162.251622,232.815619 L195.072135,216.405362 L211.482391,183.58485 L178.661879,150.764337 C197.618105,146.477784 224.068368,151.785327 244.302904,167.174593 Z"
+          id="Combined-Shape"
+        >
+          {" "}
+        </path>{" "}
+      </g>{" "}
+    </g>{" "}
+  </g>
+</svg>
+
+
+                      Maintenance Requests
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white"
+                      to="/procurement"
+                      onClick={()=>{setBreadCrumb("Procurement Requests")}}
+                    >
+                      
+                      <svg
+                           className="shrink-0 size-4"
+                           width={24}
+                           height={24}
+  fill="#1f2937"
+  version="1.2"
+  baseProfile="tiny"
+  id="Layer_1"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlnsXlink="http://www.w3.org/1999/xlink"
+  viewBox="0 0 256 188"
+  xmlSpace="preserve"
+>
+  <g id="SVGRepo_bgCarrier" strokeWidth={0} />
+  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+  <g id="SVGRepo_iconCarrier">
+    {" "}
+    <g>
+      {" "}
+      <g>
+        {" "}
+        <g>
+          {" "}
+          <path d="M63,133c-13,0-23.5,10.5-23.5,23.5s10.5,23.5,23.5,23.5c13,0,23.5-10.5,23.5-23.5S76,133,63,133z M63,165.4 c-4.9,0-9-4.1-9-9c0-4.9,4.1-9,9-9c4.9,0,9,4.1,9,9C72,161.4,68,165.4,63,165.4z M210.8,132c-13,0-23.5,10.5-23.5,23.5 s10.5,23.5,23.5,23.5c13,0,23.5-10.5,23.5-23.5S223.8,132,210.8,132z M210.8,164.4c-4.9,0-9-4.1-9-9c0-4.9,4.1-9,9-9 c4.9,0,9,4.1,9,9C219.8,160.4,215.8,164.4,210.8,164.4z M-0.5,143.1c0,4.6,3.7,8.2,8.2,8.2h22.6c0.9,0,1.7-0.7,1.9-1.5 c2.6-14.7,15.4-24.9,30.8-24.9s28.3,10.2,30.8,24.9c0.2,0.9,0.9,1.5,1.9,1.5H99h30.9V115H-0.5V143.1z M253.6,134.5h-5v-22 c0-7.5-6.1-13.6-13.7-13.6h-24.3c-0.5,0-1-0.3-1.4-0.6l-38-37c-1.7-1.7-4.1-2.7-6.6-2.8h-27.5v92.8h40.9c0.9,0,1.7-0.7,1.9-1.5 c2.6-14.7,15.4-25.9,30.8-25.9s28.3,11.2,30.8,25.9c0.2,0.9,0.9,1.5,1.9,1.5h3.2c4.9,0,8.7-3.9,8.7-8.7v-6.3 C255.5,135.4,254.6,134.5,253.6,134.5z M191.1,99h-41.4c-1,0-1.9-0.9-1.9-1.9V70.7c0-1,0.9-1.9,1.9-1.9h13.9c0.5,0,1,0.3,1.5,0.6 l27.5,26.3C193.5,97,192.7,99,191.1,99z" />{" "}
+        </g>{" "}
+      </g>{" "}
+    </g>{" "}
+    <path d="M57.8,101.5H17.1V60.8h15.7v13h9.3v-13h15.7V101.5z M110.9,101.5H70.3V60.8H86v13h9.3v-13h15.7V101.5z M84.7,48.3H44V7.6 h15.7v13H69v-13h15.7V48.3z" />{" "}
+  </g>
+</svg>
+                      Procurement Requests
+                    </Link>
+                  </li>
+                    {user?.role == "1" && 
+                                      <li className="hs-accordion" id="account-accordion">
+                                      <button
+                                        type="button"
+                                        className="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-neutral-200"
+                                        aria-expanded="true"
+                                        aria-controls="account-accordion-child"
+                                      >
+                  
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 mt-0.5 size-4" width={24} height={24}>
+                    <g id="SVGRepo_bgCarrier" strokeWidth={0} />
+                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+                    <g id="SVGRepo_iconCarrier">
+                      {" "}
+                      <path
+                        d="M10.1992 12C12.9606 12 15.1992 9.76142 15.1992 7C15.1992 4.23858 12.9606 2 10.1992 2C7.43779 2 5.19922 4.23858 5.19922 7C5.19922 9.76142 7.43779 12 10.1992 12Z"
+                        stroke="#1f2937"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />{" "}
+                      <path
+                        d="M1 22C1.57038 20.0332 2.74795 18.2971 4.36438 17.0399C5.98081 15.7827 7.95335 15.0687 10 15C14.12 15 17.63 17.91 19 22"
+                        stroke="#1f2937"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />{" "}
+                      <path
+                        d="M17.8205 4.44006C18.5822 4.83059 19.1986 5.45518 19.579 6.22205C19.9594 6.98891 20.0838 7.85753 19.9338 8.70032C19.7838 9.5431 19.3674 10.3155 18.7458 10.9041C18.1243 11.4926 17.3302 11.8662 16.4805 11.97"
+                        stroke="#1f2937"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />{" "}
+                      <path
+                        d="M17.3203 14.5701C18.6543 14.91 19.8779 15.5883 20.8729 16.5396C21.868 17.4908 22.6007 18.6827 23.0003 20"
+                        stroke="#1f2937"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />{" "}
+                    </g>
+                  </svg>
+                  
+                  
+                                        Users
+                                        <svg
+                                          className="hs-accordion-active:block ms-auto hidden size-4"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width={24}
+                                          height={24}
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth={2}
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        >
+                                          <path d="m18 15-6-6-6 6" />
+                                        </svg>
+                                        <svg
+                                          className="hs-accordion-active:hidden ms-auto block size-4"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width={24}
+                                          height={24}
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth={2}
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        >
+                                          <path d="m6 9 6 6 6-6" />
+                                        </svg>
+                                      </button>
+                                      <div
+                                        id="account-accordion-child"
+                                        className="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
+                                        role="region"
+                                        aria-labelledby="account-accordion"
+                                      >
+                                        <ul className="ps-8 pt-1 space-y-1">
+                                          <li>
+                                            <Link
+                                              className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:text-neutral-200"
+                                              to="users/view"
+                                              onClick={()=>{setBreadCrumb("Items")}}
+                                            >
+                                              List of accounts 
+                                            </Link>
+                                            <Link    className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-800 dark:text-neutral-200"
+                                            
+                                              onClick={()=>{setBreadCrumb("Items")}}to="/users/edit">
+                                            Edit accounts
+                                            </Link>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>}
+
                   <li>
                     <a
                       className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:bg-neutral-700 dark:text-white"

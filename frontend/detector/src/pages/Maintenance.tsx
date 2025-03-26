@@ -1,24 +1,41 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
-import { OutletContextType } from "../layouts/MainLayout";
-import React from "react";
-
-export default interface AssetI {
-    id: number;
-    name: string;
-    lifespan:string;
-    description: string;
-    value: number;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
+import { useEffect, useState } from "react"
+import axios from "axios"
+import React from "react"
+import { useOutletContext } from "react-router-dom"
+import { OutletContextType } from "../layouts/MainLayout"
+import {maintenanceIssues, maintenanceStatuses} from '../constants/variables.ts'
+import AssetI from "./Asset"
+interface IMaintenance {
+    id: number,
+    name: string,
+    value: number,
+    priority:string,
+    status: string
+    issue:string,
+    created_at:string,
+    updated_at:string
 }
 
-export const Asset = () => {
+const priorityLevels = [
+    { value: 'low', label: 'Low', icon: '⬇️' },
+    { value: 'medium', label: 'Medium', icon: '➡️' },
+    { value: 'high', label: 'High', icon: '⬆️' }
+  ];
+
+export const Maintenance = () => {
+    const formatDateForInput = (date: any) => {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Add leading zero
+        const day = String(d.getDate()).padStart(2, '0');         // Add leading zero
+        return `${year}-${month}-${day}`;
+    };
+    function formatDate(isoDate:string) {
+        return isoDate.slice(0, 10); // Extracts the first 10 characters (YYYY-MM-DD format)
+      }
     const hostServer = import.meta.env.VITE_SERVER_HOST
     const { setIsLoading, user } = useOutletContext<OutletContextType>()
-    const [assets, setAssets] = useState<AssetI[]>([]);
+    const [assets, setAssets] = useState<IMaintenance[]>([]);
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 5;
     const lastIndexPage = currentPage * itemsPerPage;
@@ -27,43 +44,53 @@ export const Asset = () => {
     const totalPages = Math.ceil(assets.length / itemsPerPage)
     const [addDataForm, setAddDataForm] = useState({
         name: "",
-        lifespan:"",
-        description: "",
         value: "",
+        priority:"",
+        issue:"",
         status: "",
     })
     const [updateDataForm, setUpdateDataForm] = useState({
         name: "",
-        lifespan:"",
-        description: "",
         value: "",
+        priority:"",
+        issue:"",
         status: "",
     })
     // Function to fetch all assets
     const fetchAssets = async () => {
         try {
             setIsLoading(true);
-            const response = await axios.get(`${hostServer}/getAssets`);
+            const response = await axios.get(`${hostServer}/getMaintenanceRequest`);
             setAssets(response.data);
+            console.log(response.data)
         } catch (err) {
         } finally {
             setIsLoading(false);
         }
     };
 
+
     // Function to register a new asset
-    const registerAsset = async (e: any) => {
+    const registerProjectTask = async (e: any) => {
         try {
             setIsLoading(true);
             e.preventDefault
-             await axios.post(`${hostServer}/registerAsset`, addDataForm);
+            await axios.post(`${hostServer}/registerMaintenanceRequest`, 
+                {
+                    name: addDataForm.name,
+                    value: addDataForm.value,
+                    priority:addDataForm.priority,
+                    issue:addDataForm.issue,
+                    status: addDataForm.status,
+                }
+            );
             fetchAssets();
             alert("Added Successfully!")
             setAddDataForm({
                 name: "",
-                lifespan:"",
-                description: "",
                 value: "",
+                priority:"",
+                issue:"",
                 status: "",
             })
             setIsLoading(false);
@@ -74,12 +101,17 @@ export const Asset = () => {
     };
 
     // Function to update an existing asset
-    const updateAsset = async (e:any, id:number) => {
+    const updateProjectTask = async (e: any, id: number) => {
         try {
             e.preventDefault()
             setIsLoading(true);
-            await axios.post(`${hostServer}/updateAsset`, {
-                ...updateDataForm, assetID: id
+            await axios.post(`${hostServer}/updateMaintenanceRequest`, {
+                id: id,
+                name: updateDataForm.name,
+                value: updateDataForm.value,
+                priority:updateDataForm.priority,
+                issue:updateDataForm.issue,
+                status: updateDataForm.status,
             });
             fetchAssets()
             alert("Updated Successfully!")
@@ -90,10 +122,10 @@ export const Asset = () => {
     };
 
     // Function to delete an asset
-    const removeAsset = async (id: number) => {
+    const removeProjectTask = async (id: number) => {
         try {
             setIsLoading(true);
-            await axios.delete(`${hostServer}/removeAsset/${id}`);
+            await axios.delete(`${hostServer}/removeMaintenanceRequest/${id}`);
             setAssets(assets.filter(asset => asset.id !== id)); // Remove asset from state
             alert("Deleted Successfully!")
             setIsLoading(false);
@@ -106,24 +138,28 @@ export const Asset = () => {
     useEffect(() => {
         fetchAssets();
     }, []);
+    useEffect(() => {
+        console.log(updateDataForm)
+    }, [updateDataForm])
+    useEffect(() => {
+        console.log(addDataForm)
+    }, [addDataForm])
     const toggleDialog = (data: any) => {
-
+        console.log(updateDataForm)
         const dialog = document.querySelectorAll(`.dialog-${data.id}`);
         console.log(data)
         if (dialog.length !== 0) {
-            console.log("toggledsdsd")
             setUpdateDataForm({
                 name: data.name,
-                lifespan:data.lifespan,
-                description: data.description,
                 value: data.value,
+                priority:data.priority,
+                issue:data.issue,
                 status: data.status,
             });
             dialog.forEach((item) => item.classList.toggle('show-dialog'));
-            console.log("toggleds")
         }
     };
-    
+
     return (
         <>
 
@@ -140,10 +176,10 @@ export const Asset = () => {
                                         <div className="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
                                             <div>
                                                 <h2 className="text-xl font-semibold text-gray-800 dark:text-neutral-200">
-                                                    Assets Data
+                                                Maintenance Requests Data
                                                 </h2>
                                                 <p className="text-sm text-gray-600 dark:text-neutral-400">
-                                                    Create assets, edit and delete.
+                                                    Create Maintenance Requests, edit and delete.
                                                 </p>
                                             </div>
                                             <div>
@@ -158,7 +194,7 @@ export const Asset = () => {
                                                             aria-controls="hs-focus-management-modal"
                                                             data-hs-overlay="#hs-focus-management-modal"
                                                         >
-                                                            Add Asset
+                                                            Add Request
                                                         </button>
                                                         <div
                                                             id="hs-focus-management-modal"
@@ -169,13 +205,13 @@ export const Asset = () => {
                                                         >
                                                             <div className="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
                                                                 <div className="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
-                                                                    <form onSubmit={(e) => { registerAsset(e) }}>
+                                                                    <form onSubmit={(e) => { registerProjectTask(e) }}>
                                                                         <div className="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
                                                                             <h3
                                                                                 id="hs-focus-management-modal-label"
                                                                                 className="font-bold text-gray-800 dark:text-white"
                                                                             >
-                                                                                Asset Registration
+                                                                                 Maintenance Request
                                                                             </h3>
                                                                             <button
                                                                                 type="button"
@@ -202,66 +238,46 @@ export const Asset = () => {
                                                                             </button>
                                                                         </div>
                                                                         <div className="p-4 overflow-y-auto">
+                                                                            {/* add form */}
+
+                                                                            
                                                                             <label
                                                                                 htmlFor="input-label"
                                                                                 className="block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Name
+                                                                                Maintenance Request Name
                                                                             </label>
                                                                             <input
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
                                                                                         name: e.target.value,
-                                                                                        lifespan: addDataForm.lifespan,
-                                                                                        description: addDataForm.description,
                                                                                         value: addDataForm.value,
+                                                                                        priority:addDataForm.priority,
+                                                                                        issue:addDataForm.issue,
                                                                                         status: addDataForm.status,
-                                                                                    })
+                                                                                    });
                                                                                 }}
                                                                                 type="text"
                                                                                 value={addDataForm.name}
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter asset name"
+                                                                                placeholder="Enter request name"
                                                                             />
                                                                             <label
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Description
-                                                                            </label>
-                                                                            <input
-                                                                                onChange={(e) => {
-                                                                                    setAddDataForm({
-                                                                                        name: addDataForm.name,
-                                                                                        lifespan: addDataForm.lifespan,
-                                                                                        description: e.target.value,
-                                                                                        value: addDataForm.value,
-                                                                                        status: addDataForm.status,
-                                                                                    })
-                                                                                }}
-                                                                                value={addDataForm.description}
-                                                                                type="text"
-                                                                                id="input-label"
-                                                                                required
-                                                                                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter description"
-                                                                            />
-                                                                            <label
-                                                                                htmlFor="input-label"
-                                                                                className="mt-5 block text-sm font-medium mb-2 dark:text-white"
-                                                                            >
-                                                                                Value
+                                                                                Cost
                                                                             </label>
                                                                             <input
                                                                                 value={addDataForm.value}
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
                                                                                         name: addDataForm.name,
-                                                                                        lifespan: addDataForm.lifespan,
-                                                                                        description: addDataForm.description,
                                                                                         value: e.target.value,
+                                                                                        priority:addDataForm.priority,
+                                                                                        issue:addDataForm.issue,
                                                                                         status: addDataForm.status,
                                                                                     })
                                                                                 }}
@@ -269,31 +285,61 @@ export const Asset = () => {
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter value"
+                                                                                placeholder="Enter cost"
                                                                             />
-                                                                                                                                                        <label
+                                                                            <label
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Lifespan
+                                                                                Level of priority
                                                                             </label>
-                                                                            <input
-                                                                                value={addDataForm.lifespan}
+                                                                            <select
+                                                                                value={addDataForm.priority || ''} // Ensure there's a default value
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        name: addDataForm.name,
-                                                                                        lifespan: e.target.value,
-                                                                                        description: addDataForm.description,
+                                                                                        name:addDataForm.name,
                                                                                         value: addDataForm.value,
+                                                                                        priority:e.target.value,
+                                                                                        issue:addDataForm.issue,
                                                                                         status: addDataForm.status,
-                                                                                    })
+                                                                                    });
                                                                                 }}
-                                                                                type="number"
-                                                                                id="input-label"
-                                                                                required
-                                                                                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter value"
-                                                                            />
+                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                                                                            >
+                                                                                <option value="" disabled>Select Level of priority</option>
+                                                                                {priorityLevels.map((e) => (
+                                                                                    <option key={e.value} value={e.value}>
+                                                                                        {e.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </select>
+                                                                            <label
+                                                                                htmlFor="input-label"
+                                                                                className="mt-5 block text-sm font-medium mb-2 dark:text-white"
+                                                                            >
+                                                                                Issue
+                                                                            </label>
+                                                                            <select
+                                                                                value={addDataForm.issue || ''} // Ensure there's a default value
+                                                                                onChange={(e) => {
+                                                                                    setAddDataForm({
+                                                                                        name:addDataForm.name,
+                                                                                        value: addDataForm.value,
+                                                                                        priority:addDataForm.priority,
+                                                                                        issue:e.target.value,
+                                                                                        status: addDataForm.status,
+                                                                                    });
+                                                                                }}
+                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                                                                            >
+                                                                                <option value="" disabled>Select Issue</option>
+                                                                                {maintenanceIssues.map((e:any) => (
+                                                                                    <option key={e.value} value={e.value}>
+                                                                                        {e.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                                {/* <option value="others" >Others</option> */}
+                                                                            </select>
                                                                             <label
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
@@ -301,22 +347,29 @@ export const Asset = () => {
                                                                                 Status
                                                                             </label>
                                                                             <select
-                                                                                value={addDataForm.status}
+                                                                                value={addDataForm.status || ''} // Ensure there's a default value
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        name: addDataForm.name,
-                                                                                        lifespan: addDataForm.lifespan,
-                                                                                        description: addDataForm.description,
+                                                                                        name:addDataForm.name,
                                                                                         value: addDataForm.value,
+                                                                                        priority:addDataForm.priority,
+                                                                                        issue:addDataForm.issue,
                                                                                         status: e.target.value,
-                                                                                    })
+                                                                                    });
                                                                                 }}
-                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600">
-                                                                                <option value="" selected disabled>Select a status</option>
-                                                                                <option value="Active">Active</option>
-                                                                                <option value="Inactive">Inactive</option>
-
+                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                                                                            >
+                                                                                <option value="" disabled>Select Issue</option>
+                                                                                {maintenanceStatuses.map((e:any) => (
+                                                                                    <option key={e.value} value={e.value}>
+                                                                                        {e.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                                {/* <option value="others" >Others</option> */}
                                                                             </select>
+
+                                                                                {/* add form ended */}
+                                                       
                                                                         </div>
                                                                         <div className="flex justify-end items-center gap-x-2 py-3 px-4 border-t dark:border-neutral-700">
                                                                             <button
@@ -352,7 +405,7 @@ export const Asset = () => {
                                                                 className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
                                                                 href="#"
                                                             >
-                                                                Asset ID
+                                                                Maintenance Request ID
 
                                                             </a>
                                                         </th>
@@ -361,7 +414,7 @@ export const Asset = () => {
                                                                 className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
                                                                 href="#"
                                                             >
-                                                                Name
+                                                                Maintenance Request Name
 
                                                             </a>
                                                         </th>
@@ -370,7 +423,7 @@ export const Asset = () => {
                                                                 className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
                                                                 href="#"
                                                             >
-                                                                Description
+                                                                Reported Issue
 
                                                             </a>
                                                         </th>
@@ -379,7 +432,7 @@ export const Asset = () => {
                                                                 className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
                                                                 href="#"
                                                             >
-                                                                Value
+                                                                Cost
 
                                                             </a>
                                                         </th>
@@ -388,7 +441,7 @@ export const Asset = () => {
                                                                 className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
                                                                 href="#"
                                                             >
-                                                                Lifespan
+                                                                Priority
 
                                                             </a>
                                                         </th>
@@ -398,6 +451,24 @@ export const Asset = () => {
                                                                 href="#"
                                                             >
                                                                 Status
+
+                                                            </a>
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-start">
+                                                            <a
+                                                                className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
+                                                                href="#"
+                                                            >
+                                                                Updated at
+
+                                                            </a>
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-start">
+                                                            <a
+                                                                className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
+                                                                href="#"
+                                                            >
+                                                                Created at
 
                                                             </a>
                                                         </th>
@@ -469,7 +540,7 @@ export const Asset = () => {
                                                                                 <a className="block relative z-10" href="#">
                                                                                     <div className="px-6 py-2">
                                                                                         <p className="text-sm text-gray-500 dark:text-neutral-500">
-                                                                                            {data.description}
+                                                                                            {data.issue}
                                                                                         </p>
 
                                                                                     </div>
@@ -489,7 +560,7 @@ export const Asset = () => {
                                                                                 <a className="block relative z-10" href="#">
                                                                                     <div className="px-6 py-2">
                                                                                         <p className="text-sm text-gray-500 dark:text-neutral-500">
-                                                                                            {data.lifespan}
+                                                                                            {data.priority}
                                                                                         </p>
 
                                                                                     </div>
@@ -505,11 +576,32 @@ export const Asset = () => {
                                                                                     </div>
                                                                                 </a>
                                                                             </td>
-                                                                    {user.role !== "3" && <>
-                                                                        <td className="size-px whitespace-nowrap">
+                                                                            <td className="size-px whitespace-nowrap">
+                                                                                <a className="block relative z-10" href="#">
+                                                                                    <div className="px-6 py-2">
+                                                                                        <p className="text-sm text-gray-500 dark:text-neutral-500">
+                                                                                            {formatDate(data.updated_at)}
+                                                                                        </p>
+
+                                                                                    </div>
+                                                                                </a>
+                                                                            </td>
+                                                                            <td className="size-px whitespace-nowrap">
+                                                                                <a className="block relative z-10" href="#">
+                                                                                    <div className="px-6 py-2">
+                                                                                        <p className="text-sm text-gray-500 dark:text-neutral-500">
+                                                                                            {formatDate(data.created_at)}
+                                                                                        </p>
+
+                                                                                    </div>
+                                                                                </a>
+                                                                            </td>
+                                                                            {user.role !=="3" &&
+                                                                            <>
+                                                                                                                                           <td className="size-px whitespace-nowrap">
                                                                                 <div className="px-6 py-1.5">
                                                                                     <a
-                                                                                        onClick={() => { removeAsset(data.id) }}
+                                                                                        onClick={() => { removeProjectTask(data.id) }}
                                                                                         className="inline-flex items-center gap-x-1 text-sm text-blue-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-blue-500"
                                                                                         href="#"
                                                                                     >
@@ -522,7 +614,7 @@ export const Asset = () => {
                                                                             <td className="size-px whitespace-nowrap">
                                                                                 <div className="px-6 py-1.5">
                                                                                     <a
-                                                                                        onClick={()=>{toggleDialog(data)}}
+                                                                                        onClick={() => { toggleDialog(data) }}
                                                                                         className="inline-flex items-center gap-x-1 text-sm text-blue-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-blue-500"
                                                                                         href="#"
                                                                                     >
@@ -530,107 +622,85 @@ export const Asset = () => {
                                                                                     </a>
                                                                                 </div>
                                                                                 <div className={`dialog-container dialog-${data.id}`} id="dialog-1">
-                                                    <div
-                                                            className={` dialog-container dialog-${data.id} bg-neutral-900 opacity-5 size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y`}
-                                                        >
-                                                             </div>
-                                                    <div
-                                                            className={` dialog-container dialog-${data.id} size-full fixed top-0 start-0 z-[81] overflow-x-hidden overflow-y`}
-                                                        >
-                                                            <div className={` dialog-container dialog-${data.id} ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto`}>
-                                                                <div className="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
-                                                                    <form onSubmit={(e) => { updateAsset(e, data.id) }}>
-                                                                        <div className="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
-                                                                            <h3
-                                                                                id="hs-focus-management-modal-label"
-                                                                                className="font-bold text-gray-800 dark:text-white"
-                                                                            >
-                                                                                Asset Update
-                                                                            </h3>
-                                                                            <button
-                                                                            onClick={()=>{toggleDialog(data)}}
-                                                                                type="button"
-                                                                                className="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600"
-                                                                            >
-                                                                                <span className="sr-only">Close</span>
-                                                                                <svg
-                                                                                    className="shrink-0 size-4"
-                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                    width={24}
-                                                                                    height={24}
-                                                                                    viewBox="0 0 24 24"
-                                                                                    fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    strokeWidth={2}
-                                                                                    strokeLinecap="round"
-                                                                                    strokeLinejoin="round"
-                                                                                >
-                                                                                    <path d="M18 6 6 18" />
-                                                                                    <path d="m6 6 12 12" />
-                                                                                </svg>
-                                                                            </button>
-                                                                        </div>
-                                                                        <div className="p-4 overflow-y-auto">
+                                                                                    <div
+                                                                                        className={` dialog-container dialog-${data.id} bg-neutral-900 opacity-5 size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y`}
+                                                                                    >
+                                                                                    </div>
+                                                                                    <div
+                                                                                        className={` dialog-container dialog-${data.id} size-full fixed top-0 start-0 z-[81] overflow-x-hidden overflow-y`}
+                                                                                    >
+                                                                                        <div className={` dialog-container dialog-${data.id} ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto`}>
+                                                                                            <div className="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700 dark:shadow-neutral-700/70">
+                                                                                                <form onSubmit={(e) => { updateProjectTask(e, data.id) }}>
+                                                                                                    <div className="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+                                                                                                        <h3
+                                                                                                            id="hs-focus-management-modal-label"
+                                                                                                            className="font-bold text-gray-800 dark:text-white"
+                                                                                                        >
+                                                                                                            Maintenance Request Update
+                                                                                                        </h3>
+                                                                                                        <button
+                                                                                                            onClick={() => { toggleDialog(data) }}
+                                                                                                            type="button"
+                                                                                                            className="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600"
+                                                                                                        >
+                                                                                                            <span className="sr-only">Close</span>
+                                                                                                            <svg
+                                                                                                                className="shrink-0 size-4"
+                                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                                width={24}
+                                                                                                                height={24}
+                                                                                                                viewBox="0 0 24 24"
+                                                                                                                fill="none"
+                                                                                                                stroke="currentColor"
+                                                                                                                strokeWidth={2}
+                                                                                                                strokeLinecap="round"
+                                                                                                                strokeLinejoin="round"
+                                                                                                            >
+                                                                                                                <path d="M18 6 6 18" />
+                                                                                                                <path d="m6 6 12 12" />
+                                                                                                            </svg>
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    <div className="p-4 overflow-y-auto">
+                                                                            
                                                                             <label
                                                                                 htmlFor="input-label"
                                                                                 className="block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Name
+                                                                                Maintenance Request Name
                                                                             </label>
                                                                             <input
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
                                                                                         name: e.target.value,
-                                                                                        lifespan:updateDataForm.lifespan,
-                                                                                        description: updateDataForm.description,
                                                                                         value: updateDataForm.value,
+                                                                                        priority:updateDataForm.priority,
+                                                                                        issue:updateDataForm.issue,
                                                                                         status: updateDataForm.status,
-                                                                                    })
+                                                                                    });
                                                                                 }}
                                                                                 type="text"
                                                                                 value={updateDataForm.name}
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter asset name"
+                                                                                placeholder="Enter request name"
                                                                             />
                                                                             <label
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Description
-                                                                            </label>
-                                                                            <input
-                                                                                onChange={(e) => {
-                                                                                    setUpdateDataForm({
-                                                                                        name: updateDataForm.name,
-                                                                                        lifespan:updateDataForm.lifespan,
-                                                                                        description: e.target.value,
-                                                                                        value: updateDataForm.value,
-                                                                                        status: updateDataForm.status,
-                                                                                    })
-                                                                                }}
-                                                                                value={updateDataForm.description}
-                                                                                type="text"
-                                                                                id="input-label"
-                                                                                required
-                                                                                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter description"
-                                                                            />
-                                                                            <label
-                                                                                htmlFor="input-label"
-                                                                                className="mt-5 block text-sm font-medium mb-2 dark:text-white"
-                                                                            >
-                                                                                Value
+                                                                                Cost
                                                                             </label>
                                                                             <input
                                                                                 value={updateDataForm.value}
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
                                                                                         name: updateDataForm.name,
-                                                                                        lifespan:updateDataForm.lifespan,
-                                                                                        description: updateDataForm.description,
                                                                                         value: e.target.value,
+                                                                                        priority:updateDataForm.priority,
+                                                                                        issue:updateDataForm.issue,
                                                                                         status: updateDataForm.status,
                                                                                     })
                                                                                 }}
@@ -638,31 +708,61 @@ export const Asset = () => {
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter value"
+                                                                                placeholder="Enter cost"
                                                                             />
-                                                                                                                                                        <label
+                                                                            <label
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Lifespan
+                                                                                Level of priority
                                                                             </label>
-                                                                            <input
-                                                                                value={updateDataForm.lifespan}
+                                                                            <select
+                                                                                value={updateDataForm.priority || ''} // Ensure there's a default value
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
-                                                                                        name: updateDataForm.name,
-                                                                                        lifespan: e.target.value,
-                                                                                        description: updateDataForm.description,
+                                                                                        name:updateDataForm.name,
                                                                                         value: updateDataForm.value,
+                                                                                        priority:e.target.value,
+                                                                                        issue:updateDataForm.issue,
                                                                                         status: updateDataForm.status,
-                                                                                    })
+                                                                                    });
                                                                                 }}
-                                                                                type="number"
-                                                                                id="input-label"
-                                                                                required
-                                                                                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter value"
-                                                                            />
+                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                                                                            >
+                                                                                <option value="" disabled>Select Level of priority</option>
+                                                                                {priorityLevels.map((e) => (
+                                                                                    <option key={e.value} value={e.value}>
+                                                                                        {e.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </select>
+                                                                            <label
+                                                                                htmlFor="input-label"
+                                                                                className="mt-5 block text-sm font-medium mb-2 dark:text-white"
+                                                                            >
+                                                                                Issue
+                                                                            </label>
+                                                                            <select
+                                                                                value={updateDataForm.issue || ''} // Ensure there's a default value
+                                                                                onChange={(e) => {
+                                                                                    setUpdateDataForm({
+                                                                                        name:updateDataForm.name,
+                                                                                        value: updateDataForm.value,
+                                                                                        priority:updateDataForm.priority,
+                                                                                        issue:e.target.value,
+                                                                                        status: updateDataForm.status,
+                                                                                    });
+                                                                                }}
+                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                                                                            >
+                                                                                <option value="" disabled>Select Issue</option>
+                                                                                {maintenanceIssues.map((e:any) => (
+                                                                                    <option key={e.value} value={e.value}>
+                                                                                        {e.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                                {/* <option value="others" >Others</option> */}
+                                                                            </select>
                                                                             <label
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
@@ -670,47 +770,78 @@ export const Asset = () => {
                                                                                 Status
                                                                             </label>
                                                                             <select
-                                                                                value={updateDataForm.status}
+                                                                                value={updateDataForm.status || ''} // Ensure there's a default value
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
-                                                                                        name: updateDataForm.name,
-                                                                                        lifespan:updateDataForm.lifespan,
-                                                                                        description: updateDataForm.description,
+                                                                                        name:updateDataForm.name,
                                                                                         value: updateDataForm.value,
+                                                                                        priority:updateDataForm.priority,
+                                                                                        issue:updateDataForm.issue,
                                                                                         status: e.target.value,
+                                                                                    });
+                                                                                }}
+                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                                                                            >
+                                                                                <option value="" disabled>Select Issue</option>
+                                                                                {maintenanceStatuses.map((e:any) => (
+                                                                                    <option key={e.value} value={e.value}>
+                                                                                        {e.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                                {/* <option value="others" >Others</option> */}
+                                                                            </select>
+                                                                            {/* {updateDataForm.issue == "others" && 
+                         
+                                                                            <>
+                                                                                                                          <label
+                                                                                htmlFor="input-label"
+                                                                                className="mt-5 block text-sm font-medium mb-2 dark:text-white"
+                                                                            >
+                                                                                Please Specify:
+                                                                            </label>
+                                                                            <input
+                                                                                value={updateDataForm.issue=="others"?"":updateDataForm.issue}
+                                                                                onChange={(e) => {
+                                                                                    setUpdateDataForm({
+                                                                                        name: updateDataForm.value,
+                                                                                        value: updateDataForm.value,
+                                                                                        priority:updateDataForm.priority,
+                                                                                        issue:e.target.value,
+                                                                                        status: updateDataForm.status,
                                                                                     })
                                                                                 }}
-                                                                                className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600">
-                                                                                <option value="" selected disabled>Select a status</option>
-                                                                                <option value="active">Active</option>
-                                                                                <option value="inactive">Inactive</option>
-
-                                                                            </select>
+                                                                                type="text"
+                                                                                id="input-label"
+                                                                                required
+                                                                                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
+                                                                                placeholder="Enter issue"
+                                                                            />
+                                                                            </>} */}
                                                                         </div>
-                                                                        <div className="flex justify-end items-center gap-x-2 py-3 px-4 border-t dark:border-neutral-700">
-                                                                            <button
-                                                                                                                                                            className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
-                                                                            onClick={()=>{toggleDialog(data)}}
-                                                                                type="button"
-                                                                            >
-                                                                                Close
-                                                                            </button>
-                                                                            <button
-                                                                                type="submit"
-                                                                                className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-                                                                            >
-                                                                                Update
-                                                                            </button>
-                                                                        </div>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        </div>
+                                                                                                    <div className="flex justify-end items-center gap-x-2 py-3 px-4 border-t dark:border-neutral-700">
+                                                                                                        <button
+                                                                                                            className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
+                                                                                                            onClick={() => { toggleDialog(data) }}
+                                                                                                            type="button"
+                                                                                                        >
+                                                                                                            Close
+                                                                                                        </button>
+                                                                                                        <button
+                                                                                                            type="submit"
+                                                                                                            className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                                                                                                        >
+                                                                                                            Update
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                </form>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
 
                                                                             </td>
-                                                                    </>}
-
+                                                                            </>}
+             
                                                                         </tr>
 
                                                                     </tbody>
@@ -796,20 +927,5 @@ export const Asset = () => {
 
             </div>
         </>
-        //      <div>
-        //      <h1>Assets</h1>
-        //      {loading && <p>Loading...</p>}
-        //      {error && <p>{error}</p>}
-        //      <ul>
-        //          {assets.map(asset => (
-        //              <li key={asset.id}>
-        //                  <strong>{asset.name}</strong>: {asset.description} - ${asset.value} ({asset.status})
-        //                  <button onClick={() => updateAsset({ ...asset, status: 'Updated Status' })}>Update</button>
-        //                  <button onClick={() => removeAsset(asset.id)}>Delete</button>
-        //              </li>
-        //          ))}
-        //      </ul>
-        //      {/* Add functionality to register a new asset, if needed */}
-        //  </div>
     )
 }

@@ -10,12 +10,13 @@ export default interface AssetI {
     lifespan:string;
     description: string;
     value: number;
+    stock: number,
     status: string;
     createdAt: string;
     updatedAt: string;
 }
 
-export const Asset = () => {
+export const SpareParts = () => {
     const hostServer = import.meta.env.VITE_SERVER_HOST
     const { setIsLoading, user } = useOutletContext<OutletContextType>()
     const [assets, setAssets] = useState<AssetI[]>([]);
@@ -30,6 +31,7 @@ export const Asset = () => {
         lifespan:"",
         description: "",
         value: "",
+        stock: "",
         status: "",
     })
     const [updateDataForm, setUpdateDataForm] = useState({
@@ -37,13 +39,14 @@ export const Asset = () => {
         lifespan:"",
         description: "",
         value: "",
+        stock: "",
         status: "",
     })
     // Function to fetch all assets
     const fetchAssets = async () => {
         try {
             setIsLoading(true);
-            const response = await axios.get(`${hostServer}/getAssets`);
+            const response = await axios.get(`${hostServer}/getSpareParts`);
             setAssets(response.data);
         } catch (err) {
         } finally {
@@ -56,13 +59,14 @@ export const Asset = () => {
         try {
             setIsLoading(true);
             e.preventDefault
-             await axios.post(`${hostServer}/registerAsset`, addDataForm);
+             await axios.post(`${hostServer}/registerSparePart`, addDataForm);
             fetchAssets();
             alert("Added Successfully!")
             setAddDataForm({
                 name: "",
                 lifespan:"",
                 description: "",
+                stock:"",
                 value: "",
                 status: "",
             })
@@ -78,8 +82,8 @@ export const Asset = () => {
         try {
             e.preventDefault()
             setIsLoading(true);
-            await axios.post(`${hostServer}/updateAsset`, {
-                ...updateDataForm, assetID: id
+            await axios.post(`${hostServer}/updateSparePart`, {
+                ...updateDataForm, id: id
             });
             fetchAssets()
             alert("Updated Successfully!")
@@ -93,7 +97,7 @@ export const Asset = () => {
     const removeAsset = async (id: number) => {
         try {
             setIsLoading(true);
-            await axios.delete(`${hostServer}/removeAsset/${id}`);
+            await axios.delete(`${hostServer}/removeSparePart/${id}`);
             setAssets(assets.filter(asset => asset.id !== id)); // Remove asset from state
             alert("Deleted Successfully!")
             setIsLoading(false);
@@ -109,18 +113,17 @@ export const Asset = () => {
     const toggleDialog = (data: any) => {
 
         const dialog = document.querySelectorAll(`.dialog-${data.id}`);
-        console.log(data)
         if (dialog.length !== 0) {
-            console.log("toggledsdsd")
+
             setUpdateDataForm({
                 name: data.name,
                 lifespan:data.lifespan,
                 description: data.description,
+                stock:data.stock,
                 value: data.value,
                 status: data.status,
             });
             dialog.forEach((item) => item.classList.toggle('show-dialog'));
-            console.log("toggleds")
         }
     };
     
@@ -140,10 +143,10 @@ export const Asset = () => {
                                         <div className="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
                                             <div>
                                                 <h2 className="text-xl font-semibold text-gray-800 dark:text-neutral-200">
-                                                    Assets Data
+                                                    Spare Parts Data
                                                 </h2>
                                                 <p className="text-sm text-gray-600 dark:text-neutral-400">
-                                                    Create assets, edit and delete.
+                                                    Create Spare Parts, edit and delete.
                                                 </p>
                                             </div>
                                             <div>
@@ -158,7 +161,7 @@ export const Asset = () => {
                                                             aria-controls="hs-focus-management-modal"
                                                             data-hs-overlay="#hs-focus-management-modal"
                                                         >
-                                                            Add Asset
+                                                            Add Spare Parts
                                                         </button>
                                                         <div
                                                             id="hs-focus-management-modal"
@@ -175,7 +178,7 @@ export const Asset = () => {
                                                                                 id="hs-focus-management-modal-label"
                                                                                 className="font-bold text-gray-800 dark:text-white"
                                                                             >
-                                                                                Asset Registration
+                                                                                Spare Parts Registration
                                                                             </h3>
                                                                             <button
                                                                                 type="button"
@@ -211,11 +214,9 @@ export const Asset = () => {
                                                                             <input
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
+                                                                                        ...addDataForm,
                                                                                         name: e.target.value,
-                                                                                        lifespan: addDataForm.lifespan,
-                                                                                        description: addDataForm.description,
-                                                                                        value: addDataForm.value,
-                                                                                        status: addDataForm.status,
+                                                
                                                                                     })
                                                                                 }}
                                                                                 type="text"
@@ -223,7 +224,7 @@ export const Asset = () => {
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter asset name"
+                                                                                placeholder="Enter name"
                                                                             />
                                                                             <label
                                                                                 htmlFor="input-label"
@@ -234,11 +235,9 @@ export const Asset = () => {
                                                                             <input
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        name: addDataForm.name,
-                                                                                        lifespan: addDataForm.lifespan,
+                                                                                        ...addDataForm,
                                                                                         description: e.target.value,
-                                                                                        value: addDataForm.value,
-                                                                                        status: addDataForm.status,
+                                
                                                                                     })
                                                                                 }}
                                                                                 value={addDataForm.description}
@@ -258,11 +257,9 @@ export const Asset = () => {
                                                                                 value={addDataForm.value}
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        name: addDataForm.name,
-                                                                                        lifespan: addDataForm.lifespan,
-                                                                                        description: addDataForm.description,
+                                                                                        ...addDataForm,
                                                                                         value: e.target.value,
-                                                                                        status: addDataForm.status,
+                                                                                    
                                                                                     })
                                                                                 }}
                                                                                 type="number"
@@ -275,24 +272,22 @@ export const Asset = () => {
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Lifespan
+                                                                                Lifespan (Days)
                                                                             </label>
                                                                             <input
                                                                                 value={addDataForm.lifespan}
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        name: addDataForm.name,
+                                                                                        ...addDataForm,
                                                                                         lifespan: e.target.value,
-                                                                                        description: addDataForm.description,
-                                                                                        value: addDataForm.value,
-                                                                                        status: addDataForm.status,
+                                                                                   
                                                                                     })
                                                                                 }}
                                                                                 type="number"
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter value"
+                                                                                placeholder="Enter lifespan"
                                                                             />
                                                                             <label
                                                                                 htmlFor="input-label"
@@ -304,10 +299,7 @@ export const Asset = () => {
                                                                                 value={addDataForm.status}
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        name: addDataForm.name,
-                                                                                        lifespan: addDataForm.lifespan,
-                                                                                        description: addDataForm.description,
-                                                                                        value: addDataForm.value,
+                                                                                        ...addDataForm,
                                                                                         status: e.target.value,
                                                                                     })
                                                                                 }}
@@ -545,7 +537,7 @@ export const Asset = () => {
                                                                                 id="hs-focus-management-modal-label"
                                                                                 className="font-bold text-gray-800 dark:text-white"
                                                                             >
-                                                                                Asset Update
+                                                                                Spare Parts Update
                                                                             </h3>
                                                                             <button
                                                                             onClick={()=>{toggleDialog(data)}}
@@ -579,12 +571,10 @@ export const Asset = () => {
                                                                             </label>
                                                                             <input
                                                                                 onChange={(e) => {
-                                                                                    setUpdateDataForm({
+                                                                                    setUpdateDataForm({   
+                                                                                        ...updateDataForm,
                                                                                         name: e.target.value,
-                                                                                        lifespan:updateDataForm.lifespan,
-                                                                                        description: updateDataForm.description,
-                                                                                        value: updateDataForm.value,
-                                                                                        status: updateDataForm.status,
+                                                                                     
                                                                                     })
                                                                                 }}
                                                                                 type="text"
@@ -592,7 +582,7 @@ export const Asset = () => {
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter asset name"
+                                                                                placeholder="Enter name"
                                                                             />
                                                                             <label
                                                                                 htmlFor="input-label"
@@ -603,11 +593,9 @@ export const Asset = () => {
                                                                             <input
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
-                                                                                        name: updateDataForm.name,
-                                                                                        lifespan:updateDataForm.lifespan,
+                                                                                        ...updateDataForm,
                                                                                         description: e.target.value,
-                                                                                        value: updateDataForm.value,
-                                                                                        status: updateDataForm.status,
+                                                                                  
                                                                                     })
                                                                                 }}
                                                                                 value={updateDataForm.description}
@@ -627,11 +615,9 @@ export const Asset = () => {
                                                                                 value={updateDataForm.value}
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
-                                                                                        name: updateDataForm.name,
-                                                                                        lifespan:updateDataForm.lifespan,
-                                                                                        description: updateDataForm.description,
+                                                                                        ...updateDataForm,
                                                                                         value: e.target.value,
-                                                                                        status: updateDataForm.status,
+                                                             
                                                                                     })
                                                                                 }}
                                                                                 type="number"
@@ -644,25 +630,45 @@ export const Asset = () => {
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
                                                                             >
-                                                                                Lifespan
+                                                                                Lifespan (Days)
                                                                             </label>
                                                                             <input
                                                                                 value={updateDataForm.lifespan}
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
-                                                                                        name: updateDataForm.name,
+                                                                                        ...updateDataForm,
                                                                                         lifespan: e.target.value,
-                                                                                        description: updateDataForm.description,
-                                                                                        value: updateDataForm.value,
-                                                                                        status: updateDataForm.status,
+                                                             
                                                                                     })
                                                                                 }}
                                                                                 type="number"
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
-                                                                                placeholder="Enter value"
+                                                                                placeholder="Enter lifespan"
                                                                             />
+                                                                            <label
+                                                                                htmlFor="input-label"
+                                                                                className="mt-5 block text-sm font-medium mb-2 dark:text-white"
+                                                                            >
+                                                                                Stock
+                                                                            </label>
+                                                                            <input
+                                                                                onChange={(e) => {
+                                                                                    setUpdateDataForm({
+                                                                                        ...updateDataForm,
+                                                                                        stock: e.target.value,
+   
+                                                                                    })
+                                                                                }}
+                                                                                type="number"
+                                                                                value={updateDataForm.stock}
+                                                                                id="input-label"
+                                                                                required
+                                                                                className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
+                                                                                placeholder="Enter asset name"
+                                                                            />
+        
                                                                             <label
                                                                                 htmlFor="input-label"
                                                                                 className="mt-5 block text-sm font-medium mb-2 dark:text-white"
@@ -673,10 +679,7 @@ export const Asset = () => {
                                                                                 value={updateDataForm.status}
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
-                                                                                        name: updateDataForm.name,
-                                                                                        lifespan:updateDataForm.lifespan,
-                                                                                        description: updateDataForm.description,
-                                                                                        value: updateDataForm.value,
+                                                                                        ...updateDataForm,  
                                                                                         status: e.target.value,
                                                                                     })
                                                                                 }}

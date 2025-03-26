@@ -139,7 +139,7 @@ export const ViewSales = () => {
     //             complete: (results: any) => {
     //                 setImportSalesData(results.data); // Store parsed data in state
     //                 setIsImported(!isImported)
-    //                 console.log(results.data); // Log the parsed data
+    //                 results.data); // Log the parsed data
     //             },
     //             error: (error: any) => {
     //                 console.error('Error parsing CSV:', error);

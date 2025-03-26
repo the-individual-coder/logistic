@@ -29,7 +29,7 @@ export const ProjectTasksPage = () => {
         return `${year}-${month}-${day}`;
     };
     const hostServer = import.meta.env.VITE_SERVER_HOST
-    const { setIsLoading } = useOutletContext<OutletContextType>()
+    const { setIsLoading, user } = useOutletContext<OutletContextType>()
     const [assetsF, setAssetsF] = useState<ProjectI[]>([])
     const [assets, setAssets] = useState<ProjectTask[]>([]);
     const [currentPage, setCurrentPage] = useState(1)
@@ -183,6 +183,7 @@ export const ProjectTasksPage = () => {
                                         <div className="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
                                             <div>
                                                 <h2 className="text-xl font-semibold text-gray-800 dark:text-neutral-200">
+
                                                     Project Tasks Data
                                                 </h2>
                                                 <p className="text-sm text-gray-600 dark:text-neutral-400">
@@ -201,7 +202,7 @@ export const ProjectTasksPage = () => {
                                                             aria-controls="hs-focus-management-modal"
                                                             data-hs-overlay="#hs-focus-management-modal"
                                                         >
-                                                            Add Supplier
+                                                            Add Task
                                                         </button>
                                                         <div
                                                             id="hs-focus-management-modal"
@@ -362,7 +363,7 @@ export const ProjectTasksPage = () => {
                                                                                 }}
                                                                                 className="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                                                                             >
-                                                                                <option value="" disabled>Select project</option>
+                                                                                <option value="" selected disabled>Select status</option>
                                                                                 {statuses.map((e) => (
                                                                                     <option key={e} value={e}>
                                                                                         {e}
@@ -456,7 +457,8 @@ export const ProjectTasksPage = () => {
 
                                                             </a>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-3 text-end" />
+                                                        {user.role !=="3" && <th scope="col" className="px-6 py-3 text-end" />}
+                                                        
                                                         {
                                                             data.length == 0 ?
                                                                 <>
@@ -560,7 +562,9 @@ export const ProjectTasksPage = () => {
                                                                                     </div>
                                                                                 </a>
                                                                             </td>
-                                                                            <td className="size-px whitespace-nowrap">
+                                                                            {user.role !== "3" &&
+                                                                            <>
+                                                                                                                                                        <td className="size-px whitespace-nowrap">
                                                                                 <div className="px-6 py-1.5">
                                                                                     <a
                                                                                         onClick={() => { removeProjectTask(data.id) }}
@@ -599,7 +603,7 @@ export const ProjectTasksPage = () => {
                                                                                                             id="hs-focus-management-modal-label"
                                                                                                             className="font-bold text-gray-800 dark:text-white"
                                                                                                         >
-                                                                                                            Warehouse Data
+                                                                                                            Project Task Data
                                                                                                         </h3>
                                                                                                         <button
                                                                                                             onClick={() => { toggleDialog(data) }}
@@ -775,6 +779,8 @@ export const ProjectTasksPage = () => {
                                                                                 </div>
 
                                                                             </td>
+                                                                            </>}
+
                                                                         </tr>
 
                                                                     </tbody>
@@ -877,4 +883,3 @@ export const ProjectTasksPage = () => {
         //  </div>
     )
 }
-export default ProjectTasksPage;

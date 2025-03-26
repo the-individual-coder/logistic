@@ -4,9 +4,9 @@ import { useOutletContext } from 'react-router-dom';
 import { OutletContextType } from '../layouts/MainLayout';
 import AssetI from './Asset';
 
-interface Warehouse {
+export interface Warehouse {
     id: number;
-    assetID: string;
+    asset_id: string;
     warehouse_name: string;
     name: string;
     location: string;
@@ -23,7 +23,7 @@ export const WarehousingPage = () => {
         return `${year}-${month}-${day}`;
     };
     const hostServer = import.meta.env.VITE_SERVER_HOST
-    const { setIsLoading } = useOutletContext<OutletContextType>()
+    const { setIsLoading, user } = useOutletContext<OutletContextType>()
     const [assetsF, setAssetsF] = useState<AssetI[]>([])
     const [assets, setAssets] = useState<Warehouse[]>([]);
     const [currentPage, setCurrentPage] = useState(1)
@@ -33,13 +33,13 @@ export const WarehousingPage = () => {
     const data = assets?.slice(firstIndexPage, lastIndexPage)
     const totalPages = Math.ceil(assets.length / itemsPerPage)
     const [addDataForm, setAddDataForm] = useState({
-        assetID: "",
+        asset_id: "",
         warehouse_name: "",
         location: "",
         quantity: "",
     })
     const [updateDataForm, setUpdateDataForm] = useState({
-        assetID: "",
+        asset_id: "",
         warehouse_name: "",
         location: "",
         quantity: "",
@@ -72,13 +72,13 @@ export const WarehousingPage = () => {
         try {
             setIsLoading(true);
             e.preventDefault
-            await axios.post(`${hostServer}/registerWarehouse`, addDataForm);
+            await axios.post(`${hostServer}/registerWarehouse`, {...addDataForm, warehouse_name: "Main Warehouse", location: "Quezon, City"});
             fetchSupplier();
             alert("Added Successfully!")
             setAddDataForm({
-                assetID: "",
-                warehouse_name: "",
-                location: "",
+                asset_id: "",
+                warehouse_name: "Main Warehouse",
+                location: "Quezon, City",
                 quantity: "",
             })
             setIsLoading(false);
@@ -135,7 +135,7 @@ export const WarehousingPage = () => {
         if (dialog.length !== 0) {
             console.log("toggledsdsd")
             setUpdateDataForm({
-                assetID: data.assetID,
+                asset_id: data.asset_id,
                 warehouse_name: data.warehouse_name,
                 location: data.location,
                 quantity: data.quantity,
@@ -179,7 +179,7 @@ export const WarehousingPage = () => {
                                                             aria-controls="hs-focus-management-modal"
                                                             data-hs-overlay="#hs-focus-management-modal"
                                                         >
-                                                            Add Supplier
+                                                            Add Asset
                                                         </button>
                                                         <div
                                                             id="hs-focus-management-modal"
@@ -196,7 +196,7 @@ export const WarehousingPage = () => {
                                                                                 id="hs-focus-management-modal-label"
                                                                                 className="font-bold text-gray-800 dark:text-white"
                                                                             >
-                                                                                Warehouse Registration
+                                                                                Register asset to warehouse
                                                                             </h3>
                                                                             <button
                                                                                 type="button"
@@ -237,7 +237,8 @@ export const WarehousingPage = () => {
                                                                                     }));
                                                                                 }}
                                                                                 type="text"
-                                                                                value={addDataForm.warehouse_name}
+                                                                                // value={addDataForm.warehouse_name}
+                                                                                value="Main Warehouse"
                                                                                 id="input-label"
                                                                                 required
                                                                                 className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:placeholder-neutral-500 dark:text-neutral-400"
@@ -251,10 +252,11 @@ export const WarehousingPage = () => {
 
                                                                             </label>
                                                                             <select
-                                                                                value={addDataForm.assetID || ''} // Ensure there's a default value
+                                                                            required
+                                                                                value={addDataForm.asset_id || ''} // Ensure there's a default value
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        assetID: e.target.value,
+                                                                                        asset_id: e.target.value,
                                                                                         warehouse_name: addDataForm.warehouse_name,
                                                                                         location: addDataForm.location,
                                                                                         quantity: addDataForm.quantity,
@@ -277,10 +279,11 @@ export const WarehousingPage = () => {
                                                                                 Location
                                                                             </label>
                                                                             <input
-                                                                                value={addDataForm.location}
+                                                                                // value={addDataForm.location}
+                                                                                value="Quezon City"
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        assetID: addDataForm.assetID,
+                                                                                        asset_id: addDataForm.asset_id,
                                                                                         warehouse_name: addDataForm.warehouse_name,
                                                                                         location: e.target.value,
                                                                                         quantity: addDataForm.quantity,
@@ -304,7 +307,7 @@ export const WarehousingPage = () => {
                                                                                 value={addDataForm.quantity}
                                                                                 onChange={(e) => {
                                                                                     setAddDataForm({
-                                                                                        assetID: addDataForm.assetID,
+                                                                                        asset_id: addDataForm.asset_id,
                                                                                         warehouse_name: addDataForm.warehouse_name,
                                                                                         location: addDataForm.location,
                                                                                         quantity: e.target.value,
@@ -347,7 +350,7 @@ export const WarehousingPage = () => {
                                             <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
                                                 <thead className="bg-gray-50 dark:bg-neutral-800">
                                                     <tr>
-                                                        <th scope="col" className="px-6 py-3 text-start">
+                                                        {/* <th scope="col" className="px-6 py-3 text-start">
                                                             <a
                                                                 className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
                                                                 href="#"
@@ -355,7 +358,7 @@ export const WarehousingPage = () => {
                                                                 Warehouse ID
 
                                                             </a>
-                                                        </th>
+                                                        </th> */}
                                                         <th scope="col" className="px-6 py-3 text-start">
                                                             <a
                                                                 className="group inline-flex items-center gap-x-2 text-xs font-semibold uppercase text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
@@ -401,7 +404,7 @@ export const WarehousingPage = () => {
 
                                                             </a>
                                                         </th>
-                                                        <th scope="col" className="px-6 py-3 text-end" />
+                                                        {user.role !=="3" && <th scope="col" className="px-6 py-3 text-end" />}
                                                         {
                                                             data.length == 0 ?
                                                                 <>
@@ -446,7 +449,7 @@ export const WarehousingPage = () => {
                                                                 <React.Fragment key={i}>
                                                                     <tbody className="divide-y divide-gray-200 dark:divide-neutral-700">
                                                                         <tr className="bg-white hover:bg-gray-50 dark:bg-neutral-900 dark:hover:bg-neutral-800">
-                                                                            <td className="size-px whitespace-nowrap">
+                                                                            {/* <td className="size-px whitespace-nowrap">
                                                                                 <a className="block relative z-10" href="#">
                                                                                     <div className="px-6 py-2">
                                                                                         <p className="text-sm text-gray-500 dark:text-neutral-500">
@@ -454,7 +457,7 @@ export const WarehousingPage = () => {
                                                                                         </p>
                                                                                     </div>
                                                                                 </a>
-                                                                            </td>
+                                                                            </td> */}
                                                                             <td className="size-px whitespace-nowrap">
                                                                                 <a className="block relative z-10" href="#">
                                                                                     <div className="px-6 py-2">
@@ -505,7 +508,8 @@ export const WarehousingPage = () => {
                                                                                     </div>
                                                                                 </a>
                                                                             </td>
-                                                                            <td className="size-px whitespace-nowrap">
+                                                                            {user.role !== "3" && <>
+                                                                                <td className="size-px whitespace-nowrap">
                                                                                 <div className="px-6 py-1.5">
                                                                                     <a
                                                                                         onClick={() => { removeWarehouse(data.id) }}
@@ -579,7 +583,7 @@ export const WarehousingPage = () => {
                                                                                                         <input
                                                                                                             onChange={(e) => {
                                                                                                                 setUpdateDataForm({
-                                                                                                                    assetID: updateDataForm.assetID,
+                                                                                                                    asset_id: updateDataForm.asset_id,
                                                                                                                     warehouse_name: e.target.value,
                                                                                                                     location: updateDataForm.location,
                                                                                                                     quantity: updateDataForm.quantity,
@@ -600,10 +604,10 @@ export const WarehousingPage = () => {
 
                                                                                                         </label>
                                                                                                         <select
-                                                                                                            value={updateDataForm.assetID || ''} // Ensure there's a default value
+                                                                                                            value={updateDataForm.asset_id || ''} // Ensure there's a default value
                                                                                                             onChange={(e) => {
                                                                                                                 setUpdateDataForm({
-                                                                                                                    assetID: e.target.value,
+                                                                                                                    asset_id: e.target.value,
                                                                                                                     warehouse_name: updateDataForm.warehouse_name,
                                                                                                                     location: updateDataForm.location,
                                                                                                                     quantity: updateDataForm.quantity,
@@ -628,7 +632,7 @@ export const WarehousingPage = () => {
                                                                                                             value={updateDataForm.location}
                                                                                                             onChange={(e) => {
                                                                                                                 setUpdateDataForm({
-                                                                                                                    assetID: updateDataForm.assetID,
+                                                                                                                    asset_id: updateDataForm.asset_id,
                                                                                                                     warehouse_name: updateDataForm.warehouse_name,
                                                                                                                     location: e.target.value,
                                                                                                                     quantity: updateDataForm.quantity,
@@ -650,7 +654,7 @@ export const WarehousingPage = () => {
                                                                                 value={updateDataForm.quantity}
                                                                                 onChange={(e) => {
                                                                                     setUpdateDataForm({
-                                                                                        assetID: updateDataForm.assetID,
+                                                                                        asset_id: updateDataForm.asset_id,
                                                                                         warehouse_name: updateDataForm.warehouse_name,
                                                                                         location: updateDataForm.location,
                                                                                         quantity: e.target.value,
@@ -686,6 +690,8 @@ export const WarehousingPage = () => {
                                                                                 </div>
 
                                                                             </td>
+                                                                            </>}
+
                                                                         </tr>
 
                                                                     </tbody>
