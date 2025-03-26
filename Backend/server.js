@@ -110,8 +110,8 @@ app.get("/getUsers", async (req, res)=>{
   res.json(result)
 })
 app.post("/updateUser", async (req, res)=>{
-  const {userID, username, email} = req.body
-  const query = `UPDATE users set username = '${username}', email='${email}' where user_id = ${userID}`
+  const {userID, username, email, role} = req.body
+  const query = `UPDATE users set username = '${username}', email='${email}', role='${role}' where user_id = ${userID}`
   const result = await db(query)
   console.log(result)
   res.json(result)
